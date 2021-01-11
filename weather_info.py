@@ -7,7 +7,7 @@ class WeatherInfo(pygame.sprite.Sprite):
     
     def __init__(self, city, offset, x, y, lang="eng", units="metric"):
         super().__init__()
-        # user defined attributes
+        # user defined attributes - showing to Filipek
         self.city = city
         self.offset = offset
         self.lang = lang
