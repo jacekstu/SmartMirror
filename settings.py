@@ -13,6 +13,7 @@ def load_img(path, res):
 
 
 WHITE = (255,255,255)
+BLACK = (0,0,9)
 
 THUNDER_LT = []
 for i in range(1,7):
