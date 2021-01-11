@@ -7,15 +7,18 @@ from settings import *
 pygame.init()
 clock = pygame.time.Clock()
 
-screen = pygame.display.set_mode((400,400))
+screen = pygame.display.set_mode((600,600))
 
 running = True
 
-w_obj_1 = WeatherInfo("Warszawa",3600) 
-wd_obj_1 = WeatherDisplay(w_obj_1, 0,0)
+w_obj_1 = WeatherInfo("Warszawa",3600, 0,0) 
+w_obj_2 = WeatherInfo("Madrid",3600, 250,0) 
+w_obj_3 = WeatherInfo("Cairo",3600, 0,150 ) 
 
 sprite_group = pygame.sprite.Group()
-sprite_group.add(wd_obj_1)
+sprite_group.add(w_obj_1)
+sprite_group.add(w_obj_2)
+sprite_group.add(w_obj_3)
 
 
 while running:
