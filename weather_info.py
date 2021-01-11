@@ -1,10 +1,12 @@
+import pygame
 from datetime import datetime
 import requests, json
 from settings import *
 
-class WeatherInfo:
+class WeatherInfo(pygame.sprite.Sprite):
     
-    def __init__(self, city, offset, lang="eng", units="metric"):
+    def __init__(self, city, offset, x, y, lang="eng", units="metric"):
+        super().__init__()
         # user defined attributes
         self.city = city
         self.offset = offset
@@ -15,12 +17,45 @@ class WeatherInfo:
             "&lang" + self.lang
         self.response = requests.get(self.url)
         self.json_obj = json.loads(self.response.content)
-        
+
         # attributes obtained by parsing weather API's response
         self.temp = self.get_temp()
         self.weather, self.desc = self.get_weather()
         self.wind_speed, self.wind_dir = self.get_wind()
         self.sunrise, self.sunset = self.sun();
+
+        # attributes needed for displaying on the screen
+        self.current_sprite = 0
+        self.lt = self.get_sprite_lt()
+        self.image = self.lt[self.current_sprite]
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y  = [x,y]
+
+        # other vars
+        self.timer = 0
+
+    def update(self):
+        # animate the weather image
+        self.current_sprite += 0.5
+        if self.current_sprite >= len(self.lt):
+            self.current_sprite = 0
+        self.image = self.lt[int(self.current_sprite)]
+
+        # update weather information every minute
+        if self.timer >= 3000:
+            self.response = requests.get(self.url)
+            self.json_obj = json.loads(self.response.content)
+            self.timer = 0
+            print(self.wind_speed)
+
+        self.timer += 1
+
+
+    def get_sprite_lt(self):
+        if self.get_weather()[0] == 'Clear':
+            return THUNDER_LT
+        else:
+            return SNOWING_LT
 
     def get_temp(self):
         temp_dict = self.json_obj['main']
@@ -71,9 +106,4 @@ class WeatherInfo:
         sunrise = self.time_convert(sun_dict['sunrise'])
         sunset = self.time_convert(sun_dict['sunset'])
         return sunrise, sunset
-
-
-
-        
-        
 
