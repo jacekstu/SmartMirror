@@ -2,14 +2,14 @@ import pygame
 from datetime import datetime
 import requests, json
 from settings import *
+import time
 
 class WeatherInfo(pygame.sprite.Sprite):
     
-    def __init__(self, city, offset, x, y, lang="eng", units="metric"):
+    def __init__(self, city, x, y, lang="eng", units="metric"):
         super().__init__()
         # user defined attributes - showing to Filipek
         self.city = city
-        self.offset = offset
         self.lang = lang
         self.units = units
         self.url = BASE_URL + self.city + \
@@ -29,10 +29,13 @@ class WeatherInfo(pygame.sprite.Sprite):
         self.lt = self.get_sprite_lt()
         self.image = self.lt[self.current_sprite]
         self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y  = [x,y]
+        self.rect.x, self.rect.y  = [x,(y + 150)]
+        self.country = self.get_country()
+        self.current_time = self.get_time()
 
         # other vars
         self.timer = 0
+        self.surf = pygame.Surface((50,50))
 
     def update(self):
         # animate the weather image
@@ -49,7 +52,16 @@ class WeatherInfo(pygame.sprite.Sprite):
             print(self.wind_speed)
 
         self.timer += 1
+        self.current_time = self.get_time()
+    
+    def get_country(self):
+        country_dict = self.json_obj['sys']
+        return countries_dt[country_dict['country']]
 
+    def get_time(self):
+        t_offset = self.json_obj['timezone']
+        epoch_time = int(time.time()) + int(t_offset)
+        return datetime.fromtimestamp(epoch_time).strftime("%H:%M:%S")
 
     def get_sprite_lt(self):
         if self.get_weather()[0] == 'Clear':
@@ -97,13 +109,49 @@ class WeatherInfo(pygame.sprite.Sprite):
         return wdir
 
     def time_convert(self, unix_time):
-        ts = int(unix_time) + self.offset
+        ts = int(unix_time)
         return datetime.utcfromtimestamp(ts).strftime("%H:%M:%S")
-
 
     def sun(self):
         sun_dict = self.json_obj['sys']
         sunrise = self.time_convert(sun_dict['sunrise'])
         sunset = self.time_convert(sun_dict['sunset'])
         return sunrise, sunset
+
+    def render_city(self):
+        text =  font1.render((self.city + ", " + self.country) , True, WHITE)
+        dest = (self.rect.x, self.rect.y - 132)
+        return text, dest
+
+    def render_date(self):
+        today = datetime.today().strftime('%A')
+        text = font2.render((today + ", " + self.current_time ), True, WHITE)
+        dest = (self.rect.x, self.rect.y - 99)
+        return text, dest
+
+    def render_wind(self):
+        text = font2.render(("Wind: " + str(self.wind_speed) + " km\h," \
+                + " [" + self.wind_dir + "]" ),True, WHITE )
+        dest = (self.rect.x, self.rect.y - 72)
+        return text, dest
+    
+    def render_desc(self):
+        text =  font2.render(self.desc , True, WHITE)
+        dest = (self.rect.x, self.rect.y - 45)
+        return text, dest
+
+    def render_sunrise(self):
+        text =  font0.render((" Sunrise: " + self.sunrise) , True, WHITE)
+        dest = (self.rect.x, self.rect.y + 120)
+        return text, dest
+
+    def render_sunset(self):
+        text =  font0.render((" Sunset:  " + self.sunset) , True, WHITE)
+        dest = (self.rect.x, self.rect.y + 147)
+        return text, dest
+
+    def render_temp(self):
+        text =  font3.render(self.temp,  True, WHITE)
+        dest = (self.rect.x + 110, self.rect.y + 30)
+        return text, dest
 
