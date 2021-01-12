@@ -38,6 +38,7 @@ countries_dt = {
     "EG":"Egypt",
     "MX":"Mexico",
     "GB":"Great Britain",
-    "FR":"France"
+    "FR":"France",
+    "US":"USA"
 
         }

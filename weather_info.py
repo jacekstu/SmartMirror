@@ -49,7 +49,6 @@ class WeatherInfo(pygame.sprite.Sprite):
             self.response = requests.get(self.url)
             self.json_obj = json.loads(self.response.content)
             self.timer = 0
-            print(self.wind_speed)
 
         self.timer += 1
         self.current_time = self.get_time()
@@ -113,9 +112,10 @@ class WeatherInfo(pygame.sprite.Sprite):
         return datetime.utcfromtimestamp(ts).strftime("%H:%M:%S")
 
     def sun(self):
+        t_offset = self.json_obj['timezone']
         sun_dict = self.json_obj['sys']
-        sunrise = self.time_convert(sun_dict['sunrise'])
-        sunset = self.time_convert(sun_dict['sunset'])
+        sunrise = self.time_convert((sun_dict['sunrise'] + t_offset))
+        sunset = self.time_convert((sun_dict['sunset'] + t_offset))
         return sunrise, sunset
 
     def render_city(self):
